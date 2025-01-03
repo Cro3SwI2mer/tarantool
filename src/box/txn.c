@@ -565,6 +565,9 @@ txn_begin(void)
 	txn_set_flags(txn, TXN_SUPPORTS_MULTI_ENGINE);
 	memtx_tx_register_txn(txn);
 	rmean_collect(rmean_box, IPROTO_BEGIN, 1);
+
+	// TODO: increase active_txn_counter
+	
 	return txn;
 }
 
@@ -1144,6 +1147,9 @@ txn_commit_impl(struct txn *txn, enum txn_commit_wait_mode wait_mode)
 	txn->fiber = fiber();
 	if (txn_prepare(txn) != 0)
 		goto rollback_abort;
+
+	// TODO: decrease active_txn_counter
+	
 	if (txn_commit_nop(txn)) {
 		txn_free(txn);
 		return 0;
